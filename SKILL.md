@@ -214,8 +214,19 @@ Write `.shiploop/plan.md` using the plan template. Include:
 - Which tasks are from user priorities vs. your findings
 - Verification approach per task
 
-Tell the user:
-> "Got it. I'm going to start working now. I'll be autonomous from here — committing as I go, verifying each change, and tracking progress. I'll report back when I'm done or if I hit something I need your input on."
+**If the plan has 10 or fewer tasks**, tell the user:
+> "Got it — [N] tasks. I'll work through them now. This should take about [N*5] minutes. I'll report back when I'm done."
+
+Then proceed directly to Phase 4 in this session.
+
+**If the plan has more than 10 tasks**, tell the user:
+> "Got it — [N] tasks. This is a bigger run. I'll keep working in this session, but if you want to walk away and let it run unattended, I've saved everything to `.shiploop/plan.md`. You can close this session and start a fresh one anytime with:
+>
+> `Read .shiploop/plan.md and .shiploop/context.md. Continue working through the plan autonomously. Fix, verify, track health score, loop until done.`
+>
+> Either way works — I'll start now."
+
+Then proceed to Phase 4.
 
 **This is the last time the user needs to be involved until Phase 5.**
 
