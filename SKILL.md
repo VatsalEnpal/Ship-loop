@@ -220,11 +220,21 @@ Write `.shiploop/plan.md` using the plan template. Include:
 Then proceed directly to Phase 4 in this session.
 
 **If the plan has more than 10 tasks**, tell the user:
-> "Got it — [N] tasks. This is a bigger run. I'll keep working in this session, but if you want to walk away and let it run unattended, I've saved everything to `.shiploop/plan.md`. You can close this session and start a fresh one anytime with:
+> "Got it — [N] tasks. This is a bigger run. I'll keep working in this session, but if you want to walk away and let it run overnight, here's how:
 >
-> `Read .shiploop/plan.md and .shiploop/context.md. Continue working through the plan autonomously. Fix, verify, track health score, loop until done.`
+> 1. Open a new terminal
+> 2. `cd` into this project directory
+> 3. Run `claude --dangerously-skip-permissions`
+> 4. Type `/loop` and press space (don't press Enter yet)
+> 5. Paste this prompt after `/loop `, then press Enter:
 >
-> Either way works — I'll start now."
+> ```
+> Read .shiploop/plan.md and .shiploop/context.md. Work through the plan autonomously. For each task: fix it, verify the fix works (test like a user, don't read source code during verification), commit, move to next. Track health score in .shiploop/health.json. Log every cycle to .shiploop/log.txt. Stop when health >= 95 with zero critical/high bugs, or after 15 cycles.
+> ```
+>
+> That's it. It'll loop until done. Check `.shiploop/log.txt` in the morning.
+>
+> Or just stay here — I'll start working now either way."
 
 Then proceed to Phase 4.
 
