@@ -56,11 +56,27 @@ For non-web-app projects, think about what the equivalent of "open the app and c
 
 **Always prefer interactive testing over reading test output.** A passing test suite doesn't mean the product works for a user.
 
-If you genuinely cannot find a way to test interactively, fall back to:
+## Setting Up Testing Tools
+
+If the tools you need aren't installed, INSTALL THEM YOURSELF. The user is not here — they may be asleep. You cannot ask them to install things.
+
+- Need Puppeteer for a Chrome extension? → `npm install puppeteer` in the project, write a small test script that loads the extension with `--load-extension`, and run it.
+- Need curl for an API? → It's already available.
+- Need agent-browser? → Check if it's installed with `which agent-browser`. If not, `npm install -g agent-browser`.
+- Need a specific runtime? → Install it if you can (`npm install`, `pip install`, `brew install`).
+- Need to start a server? → Start it yourself.
+
+**Do not report "I couldn't test because X wasn't installed." Install X and test.**
+
+The only exception: if installation requires credentials, system-level access you don't have, or would take more than 5 minutes. In that case, run whatever tests you CAN, and note specifically what you couldn't test and what would be needed.
+
+## Fallbacks (after you've tried setting up interactive testing)
+
+If interactive testing is genuinely impossible even after attempting setup:
 1. Run the test suite if one exists
 2. Run the build and check for errors
 3. Check the output artifacts (dist/, build/, out/) for correctness
-4. Note in your report that interactive verification was not possible and explain why
+4. Note what you tried to set up and why it didn't work
 
 ## Step 2: Verify the Task
 
