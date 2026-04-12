@@ -1,0 +1,9 @@
+# ShipLoop build artifacts (generated during self-build)
+.shiploop/
+.claude/
+
+# OS
+.DS_Store
+
+# Spec (internal, not part of the skill)
+SPEC.md
