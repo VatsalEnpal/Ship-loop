@@ -270,7 +270,7 @@ Follow the instructions in `coordinator.md` (at the skill root) to run the work 
 ### Stop Conditions
 
 Stop the loop when ANY of these are true:
-- Health score >= 95 AND zero critical/high issues
+- Health score >= 98 AND zero critical/high issues
 - 3 consecutive cycles with no health score improvement
 - 15 total cycles completed
 - A task requires user input that wasn't covered in context.md
@@ -301,6 +301,19 @@ git add -A .shiploop/
 git commit -m "shiploop: complete run - health [START] -> [END]"
 ```
 
+### Generate Health Curve
+
+Create `.shiploop/health-curve.html` — a visual graph of the health score progression. Dark background (#0a0a0a), blue (#3b82f6) curve, monospace font. Show each cycle as a data point on the curve with the score labeled.
+
+The page should open in a browser and look like a real dashboard output:
+- Title: "Good morning. Here's your run from last night."
+- Subtitle: "Product ready at .shiploop/report.md — [N] cycles, [X] issues found, [Y] fixed"
+- The curve showing health score at each cycle
+- A "ship" threshold line at 98
+- Annotations: how many issues found at start, how many fixed at end
+
+Keep it simple — pure HTML/CSS/SVG, no dependencies. Under 150 lines. The user can screenshot it to share.
+
 ### Report to User
 
 Tell the user:
@@ -309,6 +322,8 @@ Tell the user:
 > - Completed [N] of [M] planned tasks
 > - Found [A] issues, fixed [B]
 > - [Key highlight — the most impactful thing you did]
+>
+> "I generated a health curve you can view: `open .shiploop/health-curve.html`"
 >
 > "The full report is in `.shiploop/report.md`. Everything is committed."
 >
