@@ -2,7 +2,7 @@
   "_comment": "ShipLoop Health Score Template. Copy to .shiploop/health.json at start of Phase 4.",
   "_formula": "score = ((total_checks - critical*4 - high*2 - medium*1) / total_checks) * 100",
   "_stop_conditions": {
-    "convergence": "score >= 95 AND critical == 0 AND high == 0",
+    "convergence": "score >= 98 AND critical == 0 AND high == 0",
     "no_progress": "no_progress_count >= 3",
     "max_cycles": "cycle >= 15"
   },

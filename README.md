@@ -69,7 +69,7 @@ ShipLoop: "Done. 23 of 28 fixed.
      │  Next task from plan
      │   │
      ▼   ▼
-    Fix  ──────► Loop until health >= 95
+    Fix  ──────► Loop until health >= 98
 ```
 
 Each subagent gets its own fresh context. The coordinator stays lightweight — just dispatching and tracking. No context bloat even after hours of autonomous work.

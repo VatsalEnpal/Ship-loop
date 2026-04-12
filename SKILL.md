@@ -229,7 +229,7 @@ Then proceed directly to Phase 4 in this session.
 > 5. Paste this prompt after `/loop `, then press Enter:
 >
 > ```
-> Read .shiploop/plan.md and .shiploop/context.md. Work through the plan autonomously. For each task: fix it, verify the fix works (test like a user, don't read source code during verification), commit, move to next. Track health score in .shiploop/health.json. Log every cycle to .shiploop/log.txt. Stop when health >= 95 with zero critical/high bugs, or after 15 cycles.
+> Read .shiploop/plan.md and .shiploop/context.md. Work through the plan autonomously. For each task: fix it, verify the fix works (test like a user, don't read source code during verification), commit, move to next. Track health score in .shiploop/health.json. Log every cycle to .shiploop/log.txt. Stop when health >= 98 with zero critical/high bugs, or after 15 cycles.
 > ```
 >
 > That's it. It'll loop until done. Check `.shiploop/log.txt` in the morning.

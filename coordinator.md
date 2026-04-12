@@ -43,7 +43,7 @@ Each cycle follows this exact sequence:
 
 Read `.shiploop/plan.md`. Find the next task that is NOT marked as `[DONE]` or `[SKIPPED]`.
 
-If no tasks remain, check if health score >= 95 with zero critical/high issues:
+If no tasks remain, check if health score >= 98 with zero critical/high issues:
 - If yes: proceed to Phase 5 (DELIVER)
 - If no: generate additional tasks based on remaining issues and continue
 
@@ -142,7 +142,7 @@ Estimated duration: [rough estimate or omit]
 
 **Stop and proceed to Phase 5 if ANY of these are true:**
 
-1. **Convergence:** Health score >= 95 AND zero critical issues AND zero high issues
+1. **Convergence:** Health score >= 98 AND zero critical issues AND zero high issues
 2. **No Progress:** `no_progress_count` >= 3 (three cycles where health didn't improve)
 3. **Max Cycles:** Total cycles >= 15
 4. **User Input Needed:** A task requires information not in context.md
@@ -181,7 +181,7 @@ During verification, if an issue is found that the universal checklist didn't co
 When reporting to the coordinator (SKILL.md), format the health curve:
 
 ```
-Health: 72 -> 78 -> 85 -> 91 -> 95
+Health: 72 -> 78 -> 85 -> 91 -> 95 -> 98
         C1    C2    C3    C4    C5
 ```
 
