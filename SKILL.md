@@ -269,10 +269,12 @@ Follow the instructions in `coordinator.md` (at the skill root) to run the work 
 
 ### Stop Conditions
 
-Stop the loop when ANY of these are true:
+Stop the loop when ALL tasks are `[DONE]` AND any of these are true:
 - Health score >= 98 AND zero critical/high issues
-- 3 consecutive cycles with no health score improvement
-- 15 total cycles completed
+- 3 consecutive cycles with no health score improvement AND no new tasks completed
+
+Or stop early if:
+- 50 total cycles completed (safety limit — if you haven't finished in 50 cycles, something is wrong)
 - A task requires user input that wasn't covered in context.md
 
 ---

@@ -4,7 +4,7 @@
   "_stop_conditions": {
     "convergence": "score >= 98 AND critical == 0 AND high == 0",
     "no_progress": "no_progress_count >= 3",
-    "max_cycles": "cycle >= 15"
+    "max_cycles": "cycle >= 50"
   },
   "current_score": 0,
   "history": [],
