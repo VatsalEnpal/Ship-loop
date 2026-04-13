@@ -2,14 +2,51 @@
 
 You drive the autonomous work loop in Phase 4. You dispatch work and verify subagents, track progress, and decide when to stop.
 
+**You are the COORDINATOR. You do NOT do heavy work yourself.** Your job is: read state → dispatch subagents → process results → update state → next cycle. All building and testing happens in subagents via the Agent tool.
+
+## Anti-Patterns — Read Every Cycle
+
+- **DO NOT** do work yourself. ALWAYS dispatch a work subagent (Agent tool) using `brains/work.md`.
+- **DO NOT** verify your own work. ALWAYS dispatch a verify subagent using `brains/verify.md`.
+- **DO NOT** declare victory early. ALL tasks in plan.md must be `[DONE]` before stopping.
+- **DO NOT** skip tasks. Every `[ ]` must be attempted.
+- **DO NOT** batch tasks. One task per cycle.
+- **DO NOT** continue past a failing test or type error. Fix it first.
+
 ## Setup
 
 Before the first cycle, initialize tracking:
 
+### Task 0: Environment Validation (MANDATORY)
+
+Before touching any code, validate the environment:
+1. Check git branch — create feature branch if on main
+2. Run the project's type checker (tsc, mypy, etc.) — must pass
+3. Run existing tests — must pass
+4. Check for required tools (CLI dependencies, package managers)
+5. Kill any port conflicts
+6. Commit any dirty working tree: `git add -A && git commit -m "chore: pre-shiploop state"`
+7. If any check fails: fix it before proceeding, or note it as a blocker
+
+### Initialize State Files
+
 1. Read `.shiploop/plan.md` to get the task list
 2. Read `.shiploop/context.md` to know the project type and verification approach
 3. Read `.shiploop/findings.md` for baseline issues
-4. Create or update `.shiploop/log.txt` with a header:
+4. Create `.shiploop/state.json` for crash recovery:
+
+```json
+{
+  "plan_file": "plan.md",
+  "current_task": 1,
+  "tasks_done": [0],
+  "tasks_blocked": [],
+  "last_commit": "",
+  "last_updated": ""
+}
+```
+
+5. Create or update `.shiploop/log.txt` with a header:
 
 ```
 ========================================
@@ -19,7 +56,7 @@ Tasks Planned: [count]
 ========================================
 ```
 
-5. Initialize health score tracking in `.shiploop/health.json`:
+6. Initialize health score tracking in `.shiploop/health.json`:
 
 ```json
 {
@@ -39,13 +76,26 @@ Tasks Planned: [count]
 
 Each cycle follows this exact sequence:
 
+### Step 0: Re-Read State (EVERY cycle)
+
+Context compression WILL happen during long runs. At the START of every cycle:
+1. Read `.shiploop/state.json` — tells you which task to do next
+2. Read `.shiploop/plan.md` — find the next `[ ]` task
+3. If `state.json` and `plan.md` disagree, trust `plan.md` (the `[DONE]` markers are the source of truth)
+4. Check `git log --oneline -3` to verify last commit matches expectations
+
+This step prevents the loop from losing progress after context compression.
+
 ### Step 1: Pick the Next Task
 
 Read `.shiploop/plan.md`. Find the next task that is NOT marked as `[DONE]` or `[SKIPPED]`.
 
-If no tasks remain, check if health score >= 98 with zero critical/high issues:
-- If yes: proceed to Phase 5 (DELIVER)
-- If no: generate additional tasks based on remaining issues and continue
+**IMPORTANT: ALL tasks must be `[DONE]` before stopping.** Do NOT stop just because health score is high. The health score measures quality of completed work, but incomplete tasks are NOT done.
+
+If no tasks remain AND health score >= 98 with zero critical/high issues:
+- Proceed to Phase 5 (DELIVER)
+If no tasks remain BUT health score < 98:
+- Generate additional tasks based on remaining issues and continue
 
 ### Step 2: Dispatch Work Subagent
 
@@ -73,9 +123,10 @@ Parse the verification output:
 
 **If PASS:**
 1. Mark the task as `[DONE]` in `.shiploop/plan.md`
-2. Update health score (see formula below)
-3. Log success to `.shiploop/log.txt`
-4. Reset no-progress counter
+2. Update `.shiploop/state.json`: increment `current_task`, add task number to `tasks_done`, update `last_commit` and `last_updated`
+3. Update health score (see formula below)
+4. Log success to `.shiploop/log.txt`
+5. Reset no-progress counter
 
 **If FAIL:**
 1. Log the failure and issues to `.shiploop/log.txt`
@@ -140,18 +191,25 @@ Estimated duration: [rough estimate or omit]
 
 ### Step 8: Check Stop Conditions
 
-**Stop and proceed to Phase 5 if ANY of these are true:**
+**Stop and proceed to Phase 5 if ALL of these are true:**
 
-1. **Convergence:** Health score >= 98 AND zero critical issues AND zero high issues
-2. **No Progress:** `no_progress_count` >= 3 (three cycles where health didn't improve)
-3. **Max Cycles:** Total cycles >= 15
+1. **All tasks done:** Every task in `plan.md` is marked `[DONE]` or `[SKIPPED]` (no remaining `[ ]`)
+2. **Convergence:** Health score >= 98 AND zero critical issues AND zero high issues
+
+**OR stop early if ANY of these are true:**
+
+3. **No Progress:** `no_progress_count` >= 3 (three cycles where health didn't improve AND no new tasks completed)
 4. **User Input Needed:** A task requires information not in context.md
 
-**If stopping due to no-progress or max-cycles:**
-Log why you stopped. Note remaining tasks. Proceed to Phase 5 anyway — partial progress is still progress.
+**CRITICAL: Condition 1 takes priority.** Do NOT stop because health is 98 if there are still `[ ]` tasks in the plan. The health score measures quality of completed work — incomplete tasks are not done, regardless of score.
+
+**If stopping due to no-progress:**
+Write a stuck-report to `.shiploop/reports/stuck.md` explaining what you're blocked on. Log remaining tasks. Proceed to Phase 5 — partial progress is still progress.
 
 **If stopping due to user input needed:**
 Pause and ask the user the specific question. After they answer, update context.md and resume.
+
+**Max cycles:** Default is 50 (not 15). For large plans (20+ tasks), the coordinator should sustain until all tasks are done, not stop at an arbitrary cycle count. If the plan has 40 tasks and you've done 35, stopping at cycle 15 wastes the first 35 tasks' work.
 
 ### Step 9: Loop
 
