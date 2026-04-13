@@ -229,10 +229,10 @@ Then proceed directly to Phase 4 in this session.
 > 5. Paste this prompt after `/loop `, then press Enter:
 >
 > ```
-> Read .shiploop/plan.md and .shiploop/context.md. Work through the plan autonomously. For each task: fix it, verify the fix works (test like a user, don't read source code during verification), commit, move to next. Track health score in .shiploop/health.json. Log every cycle to .shiploop/log.txt. Stop when health >= 98 with zero critical/high bugs, or after 15 cycles.
+> Read .shiploop/state.json and .shiploop/plan.md. You are the COORDINATOR — do NOT do heavy work yourself. For each task: dispatch a work subagent (Agent tool) to build/fix it, then dispatch a separate verify subagent to test it (verify subagent cannot read source code, only test via browser/CLI). After each task: commit, mark [DONE] in plan.md, update state.json with current_task and tasks_done. At the START of every cycle: re-read state.json and plan.md to know where you are (context compression WILL happen). Track health in .shiploop/health.json. Log every cycle to .shiploop/log.txt. The run is NOT complete until ALL tasks in plan.md show [DONE]. If 3 cycles make no progress, write stuck-report and stop.
 > ```
 >
-> That's it. It'll loop until done. Check `.shiploop/log.txt` in the morning.
+> That's it. It'll loop until done. Check `.shiploop/log.txt` and `.shiploop/state.json` in the morning.
 >
 > Or just stay here — I'll start working now either way."
 
