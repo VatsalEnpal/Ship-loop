@@ -25,8 +25,18 @@ Before touching any code, validate the environment:
 3. Run existing tests — must pass
 4. Check for required tools (CLI dependencies, package managers)
 5. Kill any port conflicts
-6. Commit any dirty working tree: `git add -A && git commit -m "chore: pre-shiploop state"`
+6. If working tree is dirty, commit tracked files only: `git add -u && git commit -m "chore: pre-shiploop state"`. Do NOT use `git add -A` — it may stage secrets (.env, credentials) or unintended files. Check `git status` first and only stage what's safe.
 7. If any check fails: fix it before proceeding, or note it as a blocker
+
+### Concurrency Lock
+
+Before starting, check for `.shiploop/lock`. If it exists and was written less than 2 hours ago, another ShipLoop run may be active:
+```
+If .shiploop/lock exists AND (now - lock timestamp) < 2 hours:
+  STOP. Tell user: "Another ShipLoop run may be active (lock from [timestamp]). 
+  If the previous run crashed, delete .shiploop/lock and try again."
+```
+Create `.shiploop/lock` with current timestamp. Delete it in Phase 5 (DELIVER).
 
 ### Initialize State Files
 
@@ -99,21 +109,37 @@ If no tasks remain BUT health score < 98:
 
 ### Step 2: Dispatch Work Subagent
 
-Launch a subagent with the prompt from `brains/work.md`. Pass it:
+Launch a subagent using the **Agent tool** with the prompt structure from `brains/work.md`. Pass it:
 - The specific task to complete
 - Any relevant context from previous cycles (what failed, what to watch for)
+
+Example dispatch:
+```
+Agent({
+  prompt: "You are a work subagent for ShipLoop. Read .shiploop/context.md and .shiploop/plan.md for project context. Your task: [TASK DESCRIPTION]. When done, commit your changes and report what files you changed, what tests you ran, and your confidence level. Follow the rules in brains/work.md.",
+  description: "ShipLoop work: [task name]"
+})
+```
 
 Wait for the work subagent to complete. Capture its output.
 
 ### Step 3: Dispatch Verify Subagent
 
-Launch a SEPARATE subagent with the prompt from `brains/verify.md`. Pass it:
+Launch a SEPARATE subagent using the **Agent tool** with the prompt from `brains/verify.md`. Pass it:
 - What task was just completed (description only, not code)
 - What to verify (expected behavior)
 - Relevant checks from `checklist/universal.md`
 - The project type and how to test it
 
 **The verify subagent must NOT receive source code or diffs.** Only descriptions of expected behavior.
+
+Example dispatch:
+```
+Agent({
+  prompt: "You are a verification subagent for ShipLoop. You MUST NOT use the Read tool on any source code file (src/, lib/, app/, server/ directories). You can ONLY interact with the project's output — browser via Playwright MCP, CLI commands, test runners, build output. Task just completed: [DESCRIPTION]. Verify it works by testing like a user. Follow the rules in brains/verify.md. Report: PASS/FAIL/PARTIAL with evidence.",
+  description: "ShipLoop verify: [task name]"
+})
+```
 
 Wait for the verify subagent to complete. Capture its output.
 
